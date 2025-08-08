@@ -19,7 +19,7 @@ CREATE USER 'sys_temp'@'%' IDENTIFIED BY 'password';
 ```SQL
 SELECT User, Host FROM mysql.user;
 ```
-![alt text](/img/{9D6DD22A-A224-429C-866C-8C194634347E}.png)
+![alt text](img/{9D6DD22A-A224-429C-866C-8C194634347E}.png)
 
 1.4. Дайте все права для пользователя sys_temp.
 ```sql
