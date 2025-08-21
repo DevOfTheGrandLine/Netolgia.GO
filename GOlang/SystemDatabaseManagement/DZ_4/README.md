@@ -21,7 +21,6 @@ GROUP BY st.store_id, s.staff_id, c.city_id
 HAVING COUNT(cust.customer_id) > 300;
 ```
 ![txt](img/image.png)
-
 Задание 2
 Получите количество фильмов, продолжительность которых больше средней продолжительности всех фильмов.
 ```sql
