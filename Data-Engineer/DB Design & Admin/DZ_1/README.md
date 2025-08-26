@@ -1,77 +1,89 @@
-#### **Задание 1. Работа с командной строкой**  
+-- ================================================
+-- Задание 1. Работа с командной строкой
+-- ================================================
 
-1.1. Создайте новую базу данных с названием **`hr_db`**:  
+-- Задание 1.1: Создание новой базы данных (выполняется в командной строке)
+
 ```bash
-createdb hr_db
+createdb hr_db -U postgres 
 ```
 
-1.2. Восстановите бэкап учебной БД из файла `hr.sql` в созданную базу:  
+-- Задание 1.2: Восстановление бэкапа (выполняется в командной строке)
 ```bash
 psql -d hr_db -U postgres -h localhost -p 5432 -f hr.sql
 ```
 
-1.3. Подключитесь к базе `hr_db` и выведите список всех таблиц:  
-```bash
-psql -d hr_db
-```
-```sql
-\dt  -- Показать все таблицы в текущей схеме
-```
+-- 1.3. Выведите список всех таблиц восстановленной базы данных
 
-1.4. Выполните запрос на выборку всех данных из таблицы `employees`:  
-```sql
-SELECT * FROM employees;  -- Пример для таблицы employees
+-- Подключение
+```psql
+psql -d hr_db -U postgres -h localhost -p 5432
 ```
 
----
-
-#### **Задание 2. Работа с пользователями**  
-
-2.1. Создайте пользователя `myuser` с разрешением на вход, без пароля и прав:  
+-- Вывести список всех таблиц
 ```sql
-CREATE USER myuser WITH LOGIN;
+\dt hr.*
 ```
+![alt text]({CF25C414-32CF-4C7F-B654-3ABCD2F5C828}.png)
 
-2.2. Установите пароль `secure_password` с сроком действия до конца текущего месяца (пример для мая 2024):  
+1.4. Выполните SQL-запрос на выборку всех полей из любой таблицы восстановленной базы данных
 ```sql
-ALTER USER myuser 
-WITH PASSWORD 'secure_password' 
-VALID UNTIL '2024-05-31';  -- Замените на актуальную дату
+SELECT * FROM hr.employee LIMIT 5; 
 ```
+![alt text]({639B778C-9A1A-4EE5-AE60-EEAF7CF9CE29}.png)
 
-2.3. Предоставьте права на чтение для таблиц `employees` и `departments`:  
-```sql
-GRANT SELECT ON TABLE employees TO myuser;
-GRANT SELECT ON TABLE departments TO myuser;
-```
+-- ================================================
+-- Задание 2. Работа с пользователями
+-- ================================================
 
-2.4. Отзовите выданные права:  
-```sql
-REVOKE SELECT ON TABLE employees FROM myuser;
-REVOKE SELECT ON TABLE departments FROM myuser;
-```
+-- Задание 2.1: Создание пользователя MyUser
 
-2.5. Удалите пользователя:  
-```sql
-DROP USER myuser;
-```
+CREATE USER "MyUser" WITH LOGIN;
 
----
 
-#### **Задание 3. Работа с транзакциями**  
+-- Задание 2.2: Установка пароля с ограничением по сроку
 
-```sql
-BEGIN;  -- Начало транзакции
+-- Меняйте дату на актуальную (пример для мая 2024)
+ALTER USER "MyUser" 
+WITH PASSWORD '8961' 
+VALID UNTIL '2025-12-31';
 
--- Добавление записи в таблицу projects (пример для HR-схемы)
+
+
+-- Задание 2.3: Предоставление прав на чтение
+
+GRANT SELECT ON TABLE employees TO "MyUser";
+GRANT SELECT ON TABLE departments TO "MyUser";
+
+
+-- Задание 2.4: Отзыв прав на чтение
+
+REVOKE SELECT ON TABLE employees FROM "MyUser";
+REVOKE SELECT ON TABLE departments FROM "MyUser";
+
+-- Задание 2.5: Удаление пользователя
+
+DROP USER "MyUser";
+
+-- ================================================
+-- Задание 3: Работа с транзакциями
+-- ================================================
+
+-- 3.1. Начните транзакцию
+BEGIN;
+
+-- 3.2: Добавление новой записи в таблицу projects
 INSERT INTO projects (project_id, project_name, start_date, end_date)
 VALUES (9999, 'Test Project', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days');
 
-SAVEPOINT insert_project;  -- Создание точки сохранения
+-- 3.3: Создание точки сохранения
+SAVEPOINT insert_project;
 
-DELETE FROM projects WHERE project_id = 9999;  -- Удаление добавленной записи
+-- 3.4: Удаление добавленной записи
+DELETE FROM projects WHERE project_id = 9999;
 
-ROLLBACK TO SAVEPOINT insert_project;  -- Откат к точке сохранения
+-- 3.5: Откат к точке сохранения
+ROLLBACK TO SAVEPOINT insert_project;
 
-COMMIT;  -- Фиксация изменений
-```
+-- 3.6: Фиксация изменений
+COMMIT;
