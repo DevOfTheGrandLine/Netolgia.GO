@@ -1,48 +1,39 @@
--- Задание 2.1: Создание пользователя MyUser
-CREATE USER "MyUser" WITH LOGIN;
+-- task 1
+CREATE DATABASE my_new_db_hr;
 
--- Задание 2.2: Установка пароля с ограничением по сроку
+psql -h localhost -p 5433 -U postgres -d my_new_db_hr -f hr.sql
 
-ALTER USER "MyUser" 
-WITH PASSWORD '8961' 
-VALID UNTIL '2025-12-31';
+-- task 2
 
+CREATE USER myuser WITH LOGIN;
 
--- Задание 2.3: Предоставление прав на чтение
+ALTER USER myuser WITH PASSWORD '1234' VALID UNTIL '2025-09-30';
 
-GRANT SELECT ON TABLE employees TO "MyUser";
-GRANT SELECT ON TABLE departments TO "MyUser";
+GRANT SELECT, UPDATE ON TABLE hr.address, hr.candidate TO myuser;
 
--- Задание 2.4: Отзыв прав на чтение
+REVOKE SELECT, UPDATE ON TABLE hr.address, hr.candidate to myuser;
 
-REVOKE SELECT ON TABLE employees FROM "MyUser";
-REVOKE SELECT ON TABLE departments FROM "MyUser";
+DROP USER myuser;
 
--- Задание 2.5: Удаление пользователя
-
-DROP USER "MyUser";
-
--- Задание 3: Работа с транзакциями
+-- task 3
+SET search_path TO public;
 
 BEGIN;
 
--- 3.2: Добавление новой записи в таблицу projects
+CREATE TABLE projects (
+    id SERIAL,
+    name VARCHAR(100)
+);
 
-INSERT INTO projects (project_id, project_name, start_date, end_date)
-VALUES (9999, 'Test', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days');
+INSERT INTO projects (name)
+VALUES ('Alpha');
 
--- 3.3: Создание точки сохранения
+SAVEPOINT sp1;
 
-SAVEPOINT insert_project;
+DELETE FROM projects WHERE name = 'Alpha';
 
--- 3.4: Удаление добавленной записи
-
-DELETE FROM projects WHERE project_id = 9999;
-
--- 3.5: Откат к точке сохранения
-
-ROLLBACK TO SAVEPOINT insert_project;
-
--- 3.6: Фиксация изменений
+ROLLBACK TO SAVEPOINT sp1;
 
 COMMIT;
+
+SELECT * FROM projects WHERE name = 'Alpha';
